@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.situ.dao.IBanjiDao">
+    
+    <resultMap type="Banji" id="banjiCourseMap">
+    	<id property="id" column="banji_id"/>
+    	<result property="name" column="banji_name"/>
+    	<collection property="courseList" ofType="Course">
+    		<id property="id" column="id"/>
+    		<result property="name" column="name"/>
+    		<result property="credit" column="credit"/>
+    	</collection>
+    </resultMap>
+    <select id="findBanjiInfoById" parameterType="int" resultMap="banjiCourseMap">
+    	SELECT b.id as banji_id,b.name as banji_name,c.id,c.name,c.credit 
+		FROM banji AS b INNER JOIN banji_course AS bc ON b.id= bc.banji_id
+		INNER JOIN course AS c ON c.id=bc.course_id
+		WHERE b.id=#{id};
+    </select>
+    
+    
+    <!-- 通过id查询学生 -->
+    <select id="findById" parameterType="Integer" resultType="Banji" >
+       select * from banji where id = #{id}
+    </select>
+    
+    <!-- <select id="findAll" resultType="com.situ.pojo.Student">
+	  		select * from student
+	</select>
+	
+	<select id="findByName" parameterType="java.lang.String" resultType="com.situ.pojo.Student">
+		select * from student where name like '%${value}%'
+	</select>
+	
+	<delete id="deleteById" parameterType="java.lang.Integer">
+		delete from student where id = #{id}
+	</delete>
+	
+	 <delete id="delete" parameterType="com.situ.pojo.Student">
+	  		delete from student where id=#{id}
+	  </delete>
+	
+	<insert id="add" parameterType="com.situ.pojo.Student">
+		insert into student(name,age,gender)values(#{name},#{age},#{gender})
+	</insert>
+	 -->
+</mapper>

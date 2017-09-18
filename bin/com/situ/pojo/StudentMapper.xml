@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.situ.dao.IStudentDao">
+	<!-- 通过id查询学生 -->
+	<resultMap type="Student" id="BanjiCourseInfoMap">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<association property="banji" javaType="Banji">
+			<result property="name" column="banji_name"/>
+			<collection property="courseList" ofType="Course">
+				<result property="name" column="course_name"/>
+			</collection>
+		</association>	
+	</resultMap>
+	<select id="findBanjiCourseInfoById" parameterType="Student" resultMap="BanjiCourseInfoMap">
+		SELECT s.id,s.name,b.name as banji_name,c.name as course_name
+		FROM student AS s INNER JOIN banji AS b ON s.banji_id=b.id
+		INNER JOIN banji_course AS bc ON b.id=bc.banji_id
+		INNER JOIN course AS c ON bc.course_id=c.id
+		WHERE s.id=#{id};
+	</select>
+
+
+	<resultMap type="Student" id="studentInfoMap">
+		<id property="id" column="id"/>
+		<result property="name" column="name"/>
+		<result property="age" column="age"/>
+		<result property="gender" column="gender"/>
+		<result property="adderss" column="adderss"/>
+		<association property="banji" javaType="Banji">
+			<id property="id" column="banji_id"/>
+			<result property="name" column="banji_name"/>
+		</association>
+	</resultMap>
+	<select id="findInfos" parameterType="int" resultMap="studentInfoMap">
+		SELECT s.id,s.name,s.age,s.gender,s.adderss,b.id as banji_id,b.name as banji_name 
+		FROM student AS s INNER JOIN banji AS b
+		ON s.banji_id=b.id;
+	</select>
+	
+	<resultMap type="Banji" id="banjiInfoMap">
+		<id property="id" column="banji_id"/>
+		<result property="name" column="banji_name"/>
+		<collection property="list" ofType="Student">
+			<id property="id" column="id"/>
+			<result property="name" column="name"/>
+			<result property="age" column="age"/>
+			<result property="gender" column="gender"/>
+			<result property="adderss" column="adderss"/>
+		</collection>
+	</resultMap>
+	<select id="findBanjiInfo" parameterType="int" resultMap="banjiInfoMap">
+		SELECT b.id as banji_id,b.name as banji_name,s.id,s.name,s.age,s.gender,s.adderss
+		FROM banji AS b INNER JOIN student AS s 
+		ON b.id = s.banji_id
+		WHERE b.id=#{id};
+	</select>
+	
+	
+	<select id="findBySearchVo" parameterType="SearchVo" resultType="Student">
+		select * from student where name like '%${student.name}%'
+	</select>
+	
+	<select id="findByCondition" parameterType="list" resultType="Student">
+		select * from student
+		<where>
+			<if test="name!=null">
+				and name like '%${name}%'
+			</if>
+			<if test="age!=null">
+				and age = #{age}
+			</if>
+			<if test="gender!=null">
+				and gender = #{gender}
+			</if>
+			<if test="adderss!=null">
+				and adderss = #{adderss}
+			</if>
+		</where>
+	</select>
+	
+	<select id="dynaUpdate" parameterType="Student">
+		update student
+		<set>
+			<if test="name!=null">
+				name=#{name},
+			</if>
+			<if test="age!=null">
+				age=#{age},
+			</if>
+			<if test="gender!=null">
+				gender=#{gender},
+			</if>
+			<if test="adderss!=null">
+				adderss=#{adderss},
+			</if>
+		</set>
+		where id = #{id}
+	</select>
+	
+	<select id="findByIdArray" resultType="Student">
+		select * from student where id in
+		
+		<foreach collection="array" item="id" separator="," open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<select id="findByIdList" resultType="Student">
+		select * from student where id in
+		<foreach collection="list" item="id" separator="," open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+	
+	<select id="findByIdSeachVo" parameterType="SearchVO" resultType="Student">
+		select * from student where id in
+		<foreach collection="idList" item="id" separator="," open="(" close=")">
+			#{id}
+		</foreach>
+	</select>
+
+	<select id="findByPage" parameterType="map" resultType="Student">
+		select * from student limit #{index},#{pageSize}
+	</select>
+
+	<select id="findByPageNew" resultType="Student">
+		select * from student limit #{index},#{pageSize}
+	</select>
+
+	<select id="findCount" resultType="Integer">
+		select count(*) from student
+	</select>
+
+	<select id="findById" parameterType="Integer" resultType="Student">
+		select * from student where id = #{id}
+	</select>
+
+	<select id="findAll" resultType="Student">
+		select * from student
+	</select>
+
+	<select id="findByName" parameterType="java.lang.String"
+		resultType="Student">
+		select * from student where name like '%${value}%'
+	</select>
+
+	<delete id="deleteById" parameterType="java.lang.Integer">
+		delete from student where
+		id = #{id}
+	</delete>
+
+	<delete id="delete" parameterType="Student">
+		delete from student where id=#{id}
+	</delete>
+
+	<insert id="add" parameterType="Student">
+		insert into
+		student(name,age,gender)values(#{name},#{age},#{gender})
+	</insert>
+
+</mapper>
